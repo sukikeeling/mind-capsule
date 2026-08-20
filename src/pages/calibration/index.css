@@ -1,0 +1,454 @@
+/* EDEN 47 · calibration —— 全屋校准 INDEX 0 */
+
+.cal {
+  --cal-bg: #FAF8F5;
+  --cal-card: #F5F2EC;
+  --cal-card-line: rgba(43, 43, 43, 0.12);
+  --cal-text: #2B2B2B;
+  --cal-muted: #8C887B;
+  --cal-moss: #1D3B34;
+  --cal-ice: #7FB8C7;
+  --cal-coral: #FF5E57;
+  --cal-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --cal-mono: "JetBrains Mono", "Space Mono", monospace;
+  --cal-grain-opacity: 0.04;
+  --cal-spring: cubic-bezier(0.25, 1, 0.5, 1);
+
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  background: var(--cal-bg);
+  color: var(--cal-text);
+  font-family: var(--cal-serif);
+  transition: background 0.5s var(--cal-spring), color 0.5s var(--cal-spring);
+}
+
+.cal.night {
+  --cal-bg: #0F1318;
+  --cal-card: #181D24;
+  --cal-card-line: rgba(231, 228, 218, 0.14);
+  --cal-text: #E7E4DA;
+  --cal-muted: #8C94A0;
+}
+
+/* 密度：行距与卡片内边距 */
+.cal.den-compact { --cal-row-pad: 18px; --cal-card-pad: 26px; }
+.cal.den-standard { --cal-row-pad: 28px; --cal-card-pad: 36px; }
+.cal.den-relaxed { --cal-row-pad: 40px; --cal-card-pad: 48px; }
+
+/* 纸面材质等级：噪点透明度 */
+.cal.grain-light { --cal-grain-opacity: 0.02; }
+.cal.grain-standard { --cal-grain-opacity: 0.04; }
+.cal.grain-strong { --cal-grain-opacity: 0.09; }
+
+/* 动效强度=减少：关闭过渡 */
+.cal.still,
+.cal.still * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.cal-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: var(--cal-grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  transition: opacity 0.5s var(--cal-spring);
+}
+
+/* 顶部折痕装饰 */
+.cal-fold {
+  height: 10px;
+  background: linear-gradient(180deg, rgba(29, 59, 52, 0.16) 0%, rgba(29, 59, 52, 0) 100%);
+}
+
+.cal-head {
+  padding: 88px 40px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.cal-kicker {
+  font-family: var(--cal-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+.cal-title {
+  margin-top: 16px;
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.cal-sub {
+  margin-top: 14px;
+  font-size: 24px;
+  line-height: 1.7;
+  color: var(--cal-muted);
+}
+
+.cal-menu {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid var(--cal-card-line);
+  background: var(--cal-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: var(--cal-text);
+  flex-shrink: 0;
+}
+
+.cal-menu:active { opacity: 0.7; }
+
+.cal-status {
+  margin: 36px 40px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--cal-card-line);
+  border-bottom: 1px solid var(--cal-card-line);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--cal-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+.cal-status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cal-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #8FBCA4;
+  box-shadow: 0 0 10px rgba(143, 188, 164, 0.8);
+  animation: cal-breathe 2.6s ease-in-out infinite;
+}
+
+/* 00 实时预览窗 */
+.cal-preview {
+  margin: 36px 40px 0;
+  padding: var(--cal-card-pad);
+  border: 1px solid var(--cal-card-line);
+  border-radius: 24px;
+  background: var(--cal-card);
+  display: flex;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: padding 0.4s var(--cal-spring), background 0.5s var(--cal-spring);
+}
+
+.cal-preview-no {
+  font-family: var(--cal-mono);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--cal-ice);
+}
+
+.cal-preview-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-preview-label {
+  font-family: var(--cal-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+.cal-bubble {
+  margin-top: 20px;
+  padding: 26px 30px;
+  border-radius: 4px 22px 22px 22px;
+  background: var(--cal-bg);
+  border: 1px solid var(--cal-card-line);
+  transition: background 0.5s var(--cal-spring);
+}
+
+.cal-bubble-text {
+  line-height: 1.9;
+  letter-spacing: 1px;
+}
+
+.cal-preview-fold {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(225deg, var(--cal-bg) 48%, var(--cal-card-line) 50%, transparent 52%);
+}
+
+/* 卡片区块 */
+.cal-card {
+  margin: 36px 40px 0;
+  padding: var(--cal-card-pad);
+  border: 1px solid var(--cal-card-line);
+  border-radius: 24px;
+  background: var(--cal-card);
+  transition: padding 0.4s var(--cal-spring), background 0.5s var(--cal-spring);
+}
+
+.cal-sec-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.cal-sec-no {
+  font-family: var(--cal-mono);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--cal-ice);
+}
+
+.cal-sec-titlebox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-sec-title {
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.cal-sec-sub {
+  margin-top: 8px;
+  font-family: var(--cal-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+.cal-sec-glyph {
+  font-family: var(--cal-mono);
+  font-size: 26px;
+  color: var(--cal-muted);
+}
+
+.cal-rows {
+  margin-top: 14px;
+}
+
+.cal-row {
+  padding: var(--cal-row-pad) 0;
+  border-bottom: 1px dashed var(--cal-card-line);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: padding 0.4s var(--cal-spring);
+}
+
+.cal-row-last {
+  border-bottom: none;
+  padding-bottom: 6px;
+}
+
+.cal-row-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.cal-row-name {
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+.cal-row-sub {
+  font-family: var(--cal-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+/* 分段选择器 */
+.cal-seg {
+  display: flex;
+  gap: 12px;
+}
+
+.cal-seg-btn {
+  flex: 1;
+  padding: 16px 0;
+  border: 1px solid var(--cal-card-line);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s var(--cal-spring);
+}
+
+.cal-seg-btn.on {
+  background: var(--cal-moss);
+  border-color: var(--cal-moss);
+}
+
+.cal.night .cal-seg-btn.on {
+  background: var(--cal-ice);
+  border-color: var(--cal-ice);
+}
+
+.cal-seg-text {
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: var(--cal-text);
+}
+
+.cal-seg-text.mono {
+  font-family: var(--cal-mono);
+}
+
+.cal-seg-btn.on .cal-seg-text {
+  color: #FAF8F5;
+}
+
+.cal.night .cal-seg-btn.on .cal-seg-text {
+  color: #0F1318;
+}
+
+/* 开关 */
+.cal-switch {
+  width: 168px;
+  height: 64px;
+  border: 1px solid var(--cal-card-line);
+  border-radius: 999px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  box-sizing: border-box;
+  transition: all 0.35s var(--cal-spring);
+}
+
+.cal-switch.on {
+  background: var(--cal-moss);
+  border-color: var(--cal-moss);
+}
+
+.cal.night .cal-switch.on {
+  background: var(--cal-ice);
+  border-color: var(--cal-ice);
+}
+
+.cal-switch-state {
+  font-family: var(--cal-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--cal-muted);
+}
+
+.cal-switch.on .cal-switch-state {
+  color: #FAF8F5;
+}
+
+.cal.night .cal-switch.on .cal-switch-state {
+  color: #0F1318;
+}
+
+.cal-switch-knob {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #FAF8F5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.35s var(--cal-spring);
+}
+
+.cal-switch.on .cal-switch-knob {
+  transform: translateX(104px);
+}
+
+.cal.night .cal-switch.on .cal-switch-knob {
+  background: #0F1318;
+}
+
+.cal-api-btn {
+  margin-top: 14px;
+  padding: 20px 0;
+  border-radius: 999px;
+  background: var(--cal-moss);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(29, 59, 52, 0.2);
+}
+
+.cal.night .cal-api-btn {
+  background: var(--cal-ice);
+  box-shadow: 0 4px 14px rgba(127, 184, 199, 0.3);
+}
+
+.cal-api-btn:active { opacity: 0.8; }
+
+.cal-api-btn-text {
+  font-family: var(--cal-mono);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #FAF8F5;
+  font-weight: 600;
+}
+
+.cal.night .cal-api-btn-text {
+  color: #0F1318;
+}
+
+.cal-foot {
+  display: block;
+  margin: 48px 40px calc(60px + env(safe-area-inset-bottom));
+  text-align: center;
+  font-family: var(--cal-mono);
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--cal-muted);
+}
+
+/* 保存提示 */
+.cal-save {
+  position: fixed;
+  left: 50%;
+  bottom: calc(48px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 20px);
+  padding: 14px 34px;
+  border-radius: 999px;
+  background: var(--cal-moss);
+  color: #FAF8F5;
+  font-family: var(--cal-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s var(--cal-spring);
+  z-index: 100;
+}
+
+.cal-save.on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@keyframes cal-breathe {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 4px rgba(143, 188, 164, 0.4); }
+  50% { opacity: 1; box-shadow: 0 0 12px rgba(143, 188, 164, 0.9); }
+}

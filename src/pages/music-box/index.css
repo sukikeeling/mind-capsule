@@ -1,0 +1,623 @@
+/* EDEN 47 · music-box —— 白昼/黑夜双模黑胶电台 */
+
+.mbox {
+  --mini-page-background: #FAF8F5;
+  --mini-surface: #F5F2EC;
+  --mini-surface-muted: #EFECE6;
+  --mini-text: #2B2B2B;
+  --mini-text-muted: #8C887B;
+  --mini-border: rgba(43, 43, 43, 0.14);
+  --mini-primary: #1D3B34;
+  --mini-on-primary: #FAF8F5;
+  --mini-radius-card: 28px;
+  --mini-radius-control: 14px;
+  --mini-radius-pill: 999px;
+  --mini-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --mini-shadow-control: 0 15px 40px rgba(29, 59, 52, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --mini-focus-ring: 0 0 0 4px rgba(127, 184, 199, 0.35);
+  --mb-accent: #1D3B34;
+  --mb-on-accent: #FAF8F5;
+  --mb-spring: cubic-bezier(0.25, 1, 0.5, 1);
+  --mb-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --mb-mono: "JetBrains Mono", "Space Mono", monospace;
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--mini-page-background);
+  color: var(--mini-text);
+  font-family: var(--mb-serif);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mbox.night {
+  --mini-page-background: #0F1318;
+  --mini-surface: #181D24;
+  --mini-surface-muted: #1E242C;
+  --mini-text: #E9E5DB;
+  --mini-text-muted: #8A9098;
+  --mini-border: rgba(233, 229, 219, 0.16);
+  --mini-primary: #FF5E57;
+  --mini-on-primary: #14100E;
+  --mini-shadow-card: 0 12px 34px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --mini-shadow-control: 0 16px 42px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+  --mb-accent: #FF5E57;
+  --mb-on-accent: #FFEDE9;
+}
+
+/* 主题平滑过渡 */
+.mbox,
+.mb-mode-btn,
+.mb-meta,
+.mb-note,
+.mb-disc-label,
+.mb-sleeve,
+.mb-disc,
+.mb-ctl-side,
+.mb-ctl-main,
+.mb-loop,
+.mb-row,
+.mb-list-head,
+.mb-bar,
+.mb-dot,
+.mb-bar-fill {
+  transition:
+    background-color 0.7s var(--mb-spring),
+    color 0.7s var(--mb-spring),
+    border-color 0.7s var(--mb-spring),
+    box-shadow 0.7s var(--mb-spring),
+    opacity 0.7s var(--mb-spring),
+    transform 0.7s var(--mb-spring);
+}
+
+/* 黑夜星云层 */
+.mb-nebula {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s var(--mb-spring);
+  background:
+    radial-gradient(120% 60% at 85% 0%, rgba(94, 72, 138, 0.38) 0%, rgba(15, 19, 24, 0) 60%),
+    radial-gradient(80% 50% at 8% 28%, rgba(127, 184, 199, 0.14) 0%, rgba(15, 19, 24, 0) 55%),
+    radial-gradient(90% 62% at 60% 100%, rgba(29, 59, 52, 0.4) 0%, rgba(15, 19, 24, 0) 62%);
+}
+
+.mbox.night .mb-nebula {
+  opacity: 1;
+}
+
+/* 胶片噪点层 */
+.mb-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ================= 头部 ================= */
+.mb-head {
+  position: relative;
+  z-index: 1;
+  padding: calc(88px + env(safe-area-inset-top)) 40px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.mb-head-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-kicker {
+  font-family: var(--mb-mono);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-title {
+  margin-top: 16px;
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--mini-text);
+}
+
+.mb-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mb-mode-btn {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 30px;
+  border: 1px solid var(--mini-border);
+  border-radius: var(--mini-radius-control);
+  background: var(--mini-surface);
+  box-shadow: var(--mini-shadow-control);
+  font-family: var(--mb-mono);
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--mini-text);
+}
+
+.mb-menu {
+  margin-top: 8px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid var(--mini-border);
+  background: var(--mini-surface);
+  box-shadow: var(--mini-shadow-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: var(--mini-text);
+  flex-shrink: 0;
+}
+
+.mb-menu:active { opacity: 0.7; }
+
+.mb-mode-btn:active {
+  opacity: 0.65;
+}
+
+.mb-mode-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mb-accent);
+  box-shadow: 0 0 12px rgba(255, 94, 87, 0.45);
+}
+
+/* ================= 元数据行 ================= */
+.mb-meta {
+  position: relative;
+  z-index: 1;
+  margin: 44px 40px 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--mini-border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.mb-meta-col {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  line-height: 1.8;
+  color: var(--mini-text-muted);
+}
+
+.mb-meta-col.right {
+  text-align: right;
+}
+
+/* ================= 唱片区 ================= */
+.mb-player {
+  position: relative;
+  z-index: 1;
+  margin: 44px 40px 0;
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+.mb-stage {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  flex: none;
+}
+
+.mb-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: var(--mini-shadow-card), 0 18px 44px rgba(15, 19, 24, 0.22);
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 30%),
+    conic-gradient(from 24deg at 50% 50%,
+      rgba(255, 255, 255, 0) 0deg,
+      rgba(255, 255, 255, 0.12) 42deg,
+      rgba(255, 255, 255, 0) 96deg,
+      rgba(255, 255, 255, 0.09) 208deg,
+      rgba(255, 255, 255, 0) 300deg),
+    repeating-radial-gradient(circle at 50% 50%,
+      #17181B 0px, #17181B 3px,
+      #232529 4px, #17181B 7px);
+  animation: mb-spin 7s linear infinite;
+}
+
+.mb-disc.halted {
+  animation-play-state: paused;
+}
+
+.mbox.night .mb-disc {
+  opacity: 0.28;
+}
+
+.mb-disc-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 132px;
+  height: 132px;
+  margin: -66px 0 0 -66px;
+  border-radius: 50%;
+  background: var(--mini-surface-muted);
+  border: 1px solid var(--mini-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mb-label-top {
+  font-family: var(--mb-mono);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--mini-text);
+}
+
+.mb-label-mid {
+  font-family: var(--mb-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--mb-accent);
+}
+
+.mb-label-no {
+  font-family: var(--mb-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+/* 黑夜抽拉黑胶套 */
+.mb-sleeve {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateX(-16%) rotate(-5deg) scale(0.94);
+  pointer-events: none;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  background-color: #181D24;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23312A44'/%3E%3Cstop offset='.55' stop-color='%231D3B34'/%3E%3Cstop offset='1' stop-color='%230F1318'/%3E%3C/linearGradient%3E%3CradialGradient id='b' cx='.5' cy='.45' r='.6'%3E%3Cstop offset='0' stop-color='%23FF5E57'/%3E%3Cstop offset='.4' stop-color='%237FB8C7'/%3E%3Cstop offset='1' stop-color='%23101418'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='300' height='300' fill='url(%23a)'/%3E%3Ccircle cx='150' cy='140' r='92' fill='url(%23b)' opacity='.85'/%3E%3Ccircle cx='150' cy='140' r='92' fill='none' stroke='%23FAF8F5' stroke-opacity='.25'/%3E%3Ccircle cx='150' cy='140' r='12' fill='%230F1318'/%3E%3Ccircle cx='150' cy='140' r='4' fill='%23FAF8F5'/%3E%3Ctext x='24' y='272' font-family='monospace' font-size='16' letter-spacing='4' fill='%23FAF8F5' fill-opacity='.7'%3EEDEN%C2%B747%3C/text%3E%3Ctext x='276' y='40' text-anchor='end' font-family='monospace' font-size='12' letter-spacing='3' fill='%23FF5E57'%3ENIGHT PRESS%3C/text%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+}
+
+.mbox.night .mb-sleeve {
+  opacity: 1;
+  transform: translateX(0) rotate(-2deg) scale(1);
+}
+
+/* ================= 当前曲目 ================= */
+.mb-now-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-now {
+  display: flex;
+  flex-direction: column;
+  animation: mb-fade 0.55s var(--mb-spring);
+}
+
+.mb-now-kicker {
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-now-title {
+  margin-top: 14px;
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 1.25;
+  color: var(--mini-text);
+}
+
+.mb-now-artist {
+  margin-top: 10px;
+  font-family: var(--mb-mono);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-note {
+  margin-top: 24px;
+  padding: 22px 24px;
+  background: var(--mini-surface-muted);
+  border: 1px solid var(--mini-border);
+  border-radius: var(--mini-radius-control);
+  box-shadow: var(--mini-shadow-card);
+  font-size: 22px;
+  line-height: 1.9;
+  color: var(--mini-text);
+}
+
+.mb-spectrum {
+  display: block;
+  margin-top: 24px;
+  width: 100%;
+  height: 96px;
+}
+
+/* ================= 进度 ================= */
+.mb-progress {
+  position: relative;
+  z-index: 1;
+  margin: 48px 40px 0;
+}
+
+.mb-bar {
+  position: relative;
+  height: 2px;
+  background: var(--mini-border);
+}
+
+.mb-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--mb-accent);
+  transition: width 1s linear, background-color 0.7s var(--mb-spring);
+}
+
+.mb-dot {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--mb-accent);
+  box-shadow: 0 0 12px rgba(255, 94, 87, 0.35);
+  transition: left 1s linear, background-color 0.7s var(--mb-spring);
+}
+
+.mb-times {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+/* ================= 控制 ================= */
+.mb-controls {
+  position: relative;
+  z-index: 1;
+  margin: 40px 40px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+.mb-ctl-side {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 1px solid var(--mini-border);
+  background: var(--mini-surface);
+  box-shadow: var(--mini-shadow-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mini-text);
+}
+
+.mb-ctl-side:active,
+.mb-ctl-main:active {
+  opacity: 0.7;
+}
+
+.mb-ctl-glyph {
+  font-family: var(--mb-mono);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--mini-text);
+}
+
+.mb-ctl-main {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  background: var(--mb-accent);
+  box-shadow: var(--mini-shadow-control);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mb-play-tri {
+  width: 0;
+  height: 0;
+  margin-left: 10px;
+  border-left: 30px solid var(--mb-on-accent);
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+}
+
+.mb-pause-bars {
+  display: flex;
+  gap: 12px;
+}
+
+.mb-pause-bar {
+  width: 10px;
+  height: 38px;
+  border-radius: 5px;
+  background: var(--mb-on-accent);
+}
+
+.mb-loop {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 76px;
+  height: 76px;
+  margin-top: -38px;
+  border: 1px solid var(--mini-border);
+  border-radius: var(--mini-radius-control);
+  background: var(--mini-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mb-mono);
+  font-size: 30px;
+  color: var(--mini-text-muted);
+}
+
+/* ================= 歌单 ================= */
+.mb-list-head {
+  position: relative;
+  z-index: 1;
+  margin: 60px 40px 0;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--mini-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.mb-list-title {
+  font-family: var(--mb-mono);
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--mini-text);
+  padding-bottom: 20px;
+  margin-bottom: -23px;
+  border-bottom: 2px solid var(--mb-accent);
+}
+
+.mb-list-side {
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-rows {
+  position: relative;
+  z-index: 1;
+  margin: 0 40px;
+  padding-bottom: 20px;
+}
+
+.mb-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 30px 10px;
+  border-bottom: 1px solid var(--mini-border);
+}
+
+.mb-row:active {
+  opacity: 0.7;
+}
+
+.mb-row-on {
+  background: var(--mini-surface-muted);
+  border-radius: var(--mini-radius-control);
+  box-shadow: inset 4px 0 0 var(--mb-accent);
+  padding-left: 22px;
+  padding-right: 22px;
+  border-bottom-color: transparent;
+}
+
+.mb-row-no {
+  width: 64px;
+  flex: none;
+  font-family: var(--mb-mono);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-row-mark {
+  width: 64px;
+  flex: none;
+  font-size: 18px;
+  color: var(--mb-accent);
+}
+
+.mb-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-row-title {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--mini-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mb-row-artist {
+  margin-top: 8px;
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-row-dur {
+  flex: none;
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--mini-text-muted);
+}
+
+.mb-foot {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 24px 40px calc(40px + env(safe-area-inset-bottom));
+  text-align: center;
+  font-family: var(--mb-mono);
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--mini-text-muted);
+}
+
+/* ================= 动效 ================= */
+@keyframes mb-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mb-fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
