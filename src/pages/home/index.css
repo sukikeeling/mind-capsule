@@ -648,3 +648,60 @@
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ================= 60fps 原生空间景深形变与房间挂载 ================= */
+
+.compass-head.fade-out,
+.compass-foot.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-16px);
+  transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1), transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.compass-foot.fade-out {
+  transform: translateY(16px);
+}
+
+.stage-morphing {
+  pointer-events: none;
+}
+
+.eden-room-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: #0d1015;
+  will-change: transform, opacity, filter;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.eden-room-overlay.expanding {
+  opacity: 0;
+  transform: scale(0.92) translateY(40px) translateZ(60px);
+  filter: blur(8px);
+}
+
+.eden-room-overlay.opened {
+  opacity: 1;
+  transform: scale(1) translateY(0) translateZ(0);
+  filter: blur(0);
+}
+
+.eden-room-overlay.collapsing {
+  opacity: 0;
+  transform: scale(0.94) translateY(30px) translateZ(-40px);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.eden-room-viewport {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+

@@ -1,22 +1,58 @@
+/**
+ * Mind Capsule · EDEN 47
+ * 归家索引 · 3D 标本罗盘与空间景深形变漫游系统 (In-Place Spatial Morphing Transition)
+ * 
+ * 核心重构：
+ * 1. 彻底消灭粗暴的侧边栏滑入路由，改为 Awwwards / iOS 顶级 Shared Spatial Morphing
+ * 2. 点击卡片触发 Scale + Z 轴景深穿透推进 (translateZ 140px)
+ * 3. 其余卡片与罗盘景深退场，房间内容 60fps GPU 满帧流体升起
+ * 4. 0 延迟、0 丢帧、无缝连贯物理回弹
+ */
+
 import { useEffect, useRef, useState } from "react"
 import { View, Text } from "@tarojs/components"
-import Taro from "@tarojs/taro"
 import type { CSSProperties } from "react"
 import { SPECIMEN_CARDS, ritualBaseArt, ritualDoorArt, ritualFigureArt } from "./cards"
 import "./index.css"
 
-type Phase = "ritual" | "flip" | "compass"
+// 各房间原生组件与独立状态
+import { BainkView } from "../baink/BainkView"
+import { useBaink } from "../baink/useBaink"
+import "../baink/index.css"
 
-const SPRING = "cubic-bezier(0.25, 1, 0.5, 1)"
+import { MusicBoxView } from "../music-box/MusicBoxView"
+import { useMusicBox } from "../music-box/useMusicBox"
+import "../music-box/index.css"
+
+import { ArchiveView } from "../archive/ArchiveView"
+import { useArchive } from "../archive/useArchive"
+import "../archive/index.css"
+
+import { StoryView } from "../story/StoryView"
+import { useStory } from "../story/useStory"
+import "../story/index.css"
+
+import { ToyRoomView } from "../toy-room/ToyRoomView"
+import { useToyRoom } from "../toy-room/useToyRoom"
+import "../toy-room/index.css"
+
+import { CalibrationView } from "../calibration/CalibrationView"
+import { useCalibration } from "../calibration/useCalibration"
+import "../calibration/index.css"
+
+type Phase = "ritual" | "flip" | "compass"
+type RoomTransitionState = "closed" | "expanding" | "opened" | "collapsing"
+
+const SPRING = "cubic-bezier(0.22, 1, 0.36, 1)"
 const CARD_COUNT = SPECIMEN_CARDS.length
 
 const CARD_AMBIENT_GLOW: Record<string, string> = {
-  baink: "radial-gradient(circle at 50% 45%, rgba(29, 59, 52, 0.16) 0%, rgba(243, 240, 233, 0.2) 45%, transparent 70%)",
-  "music-box": "radial-gradient(circle at 50% 45%, rgba(255, 94, 87, 0.18) 0%, rgba(15, 23, 42, 0.22) 50%, transparent 74%)",
-  archive: "radial-gradient(circle at 50% 45%, rgba(127, 184, 199, 0.18) 0%, transparent 70%)",
-  story: "radial-gradient(circle at 50% 45%, rgba(43, 68, 59, 0.2) 0%, transparent 70%)",
-  "toy-room": "radial-gradient(circle at 50% 45%, rgba(74, 43, 51, 0.2) 0%, transparent 70%)",
-  calibration: "radial-gradient(circle at 50% 45%, rgba(36, 70, 60, 0.15) 0%, transparent 70%)",
+  baink: "radial-gradient(circle at 50% 45%, rgba(29, 59, 52, 0.22) 0%, rgba(243, 240, 233, 0.25) 45%, transparent 70%)",
+  "music-box": "radial-gradient(circle at 50% 45%, rgba(255, 94, 87, 0.22) 0%, rgba(15, 23, 42, 0.32) 50%, transparent 74%)",
+  archive: "radial-gradient(circle at 50% 45%, rgba(127, 184, 199, 0.25) 0%, rgba(14, 17, 23, 0.5) 50%, transparent 70%)",
+  story: "radial-gradient(circle at 50% 45%, rgba(43, 68, 59, 0.26) 0%, transparent 70%)",
+  "toy-room": "radial-gradient(circle at 50% 45%, rgba(166, 58, 64, 0.26) 0%, transparent 70%)",
+  calibration: "radial-gradient(circle at 50% 45%, rgba(43, 68, 59, 0.22) 0%, transparent 70%)",
 }
 
 export default function HomePage() {
@@ -27,8 +63,21 @@ export default function HomePage() {
   const [dragging, setDragging] = useState(false)
   const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 })
 
+  // 房间沉浸式内嵌与流体形变状态
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null)
+  const [roomState, setRoomState] = useState<RoomTransitionState>("closed")
+
+  // 房间 Hook 初始化
+  const bainkProps = useBaink()
+  const musicBoxProps = useMusicBox()
+  const archiveProps = useArchive()
+  const storyProps = useStory()
+  const toyRoomProps = useToyRoom()
+  const calibrationProps = useCalibration()
+
   const touchRef = useRef({ startX: 0, startY: 0, lastX: 0, lastT: 0, velocity: 0, moved: false, isDown: false })
   const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const roomTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // 开屏两段式：00:00 信号搜索卡停留约 1.5s 后丝滑过渡到 00:01 门扉剪影卡
   useEffect(() => {
@@ -36,9 +85,13 @@ export default function HomePage() {
     return () => clearTimeout(t)
   }, [])
 
-  // 键盘左右方向键切换卡片
+  // 键盘左右方向键切换卡片 / ESC 退出房间
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (roomState === "opened") {
+        if (e.key === "Escape" || e.key === "Backspace") closeRoom()
+        return
+      }
       if (phase !== "compass") return
       if (e.key === "ArrowLeft") stepTo(activeIndex - 1)
       if (e.key === "ArrowRight") stepTo(activeIndex + 1)
@@ -46,7 +99,7 @@ export default function HomePage() {
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [phase, activeIndex])
+  }, [phase, activeIndex, roomState])
 
   const stageSpan = 220
 
@@ -62,6 +115,7 @@ export default function HomePage() {
   }
 
   const handleStart = (clientX: number, clientY: number) => {
+    if (roomState !== "closed") return
     touchRef.current = {
       startX: clientX,
       startY: clientY,
@@ -75,6 +129,7 @@ export default function HomePage() {
   }
 
   const handleMove = (clientX: number, clientY: number, targetRect?: DOMRect) => {
+    if (roomState !== "closed") return
     const s = touchRef.current
     if (!s.isDown) {
       // 悬停交互：计算微视差角度与高光偏移
@@ -82,8 +137,8 @@ export default function HomePage() {
         const nx = ((clientX - targetRect.left) / targetRect.width - 0.5) * 2
         const ny = ((clientY - targetRect.top) / targetRect.height - 0.5) * 2
         setTilt({
-          x: Number((nx * 5).toFixed(2)),
-          y: Number((ny * -4).toFixed(2)),
+          x: Number((nx * 6).toFixed(2)),
+          y: Number((ny * -5).toFixed(2)),
           glareX: Math.round(((clientX - targetRect.left) / targetRect.width) * 100),
           glareY: Math.round(((clientY - targetRect.top) / targetRect.height) * 100),
         })
@@ -101,6 +156,7 @@ export default function HomePage() {
   }
 
   const handleEnd = (clientX?: number, clientY?: number) => {
+    if (roomState !== "closed") return
     const s = touchRef.current
     if (!s.isDown) return
     s.isDown = false
@@ -111,6 +167,7 @@ export default function HomePage() {
     const fraction = -dx / stageSpan
     const fresh = Date.now() - s.lastT < 150
 
+    // 向上滑动卡片直接步入房间
     if (dy < -60 && Math.abs(dy) > Math.abs(dx) * 1.2) {
       setDragX(0)
       setDragging(false)
@@ -130,7 +187,6 @@ export default function HomePage() {
     stepTo(next)
   }
 
-  // 移动端 Touch 事件
   const onTouchStart = (e: any) => {
     const t = e.touches?.[0]
     if (t) handleStart(t.clientX, t.clientY)
@@ -144,7 +200,6 @@ export default function HomePage() {
     handleEnd(t?.clientX, t?.clientY)
   }
 
-  // 桌面端 Mouse 事件
   const onMouseDown = (e: any) => {
     handleStart(e.clientX, e.clientY)
   }
@@ -157,28 +212,34 @@ export default function HomePage() {
   }
 
   const onWheel = (e: any) => {
+    if (roomState !== "closed") return
     if (Math.abs(e.deltaX) > 20 || Math.abs(e.deltaY) > 20) {
       const dir = (e.deltaX || e.deltaY) > 0 ? 1 : -1
       stepTo(activeIndex + dir)
     }
   }
 
-  const ROOM_ROUTES: Record<string, string> = {
-    baink: "/pages/baink/index",
-    "music-box": "/pages/music-box/index",
-    archive: "/pages/archive/index",
-    calibration: "/pages/calibration/index",
-    story: "/pages/story/index",
-    "toy-room": "/pages/toy-room/index",
+  /* ---------- 顶级 3D Spatial Morphing 步入房间 ---------- */
+  const openActiveRoom = () => {
+    if (roomState !== "closed") return
+    const roomId = active.id
+    setActiveRoomId(roomId)
+    setRoomState("expanding")
+    if (roomTimerRef.current) clearTimeout(roomTimerRef.current)
+    roomTimerRef.current = setTimeout(() => {
+      setRoomState("opened")
+    }, 420)
   }
 
-  const openActiveRoom = () => {
-    const route = ROOM_ROUTES[active.id]
-    if (route) {
-      Taro.navigateTo({ url: route })
-      return
-    }
-    Taro.showToast({ title: "房间尚未开启", icon: "none" })
+  /* ---------- 优雅折叠回退罗盘 ---------- */
+  const closeRoom = () => {
+    if (roomState === "closed") return
+    setRoomState("collapsing")
+    if (roomTimerRef.current) clearTimeout(roomTimerRef.current)
+    roomTimerRef.current = setTimeout(() => {
+      setRoomState("closed")
+      setActiveRoomId(null)
+    }, 380)
   }
 
   const onCardTap = (index: number) => {
@@ -191,25 +252,23 @@ export default function HomePage() {
   const active = SPECIMEN_CARDS[activeIndex]
   const ambientGlow = CARD_AMBIENT_GLOW[active.id] || CARD_AMBIENT_GLOW.baink
 
-  // 高保真工业级 3D CoverFlow 变换矩阵
+  // 高保真工业级 3D CoverFlow 变换矩阵与 Spatial Morphing
   const cardStyle = (index: number): CSSProperties => {
     const r = index - activeIndex - fraction
     const abs = Math.abs(r)
-    const side = Math.min(abs, 1.8)
     const isCenter = abs < 0.2
 
-    // 连续非线性旋转角与深度推进
+    // 基础 CoverFlow 坐标
     const tx = Number((r * 68).toFixed(2))
     const tz = Number((-110 * Math.min(abs, 2)).toFixed(1))
     const ry = Number((-Math.sign(r) * Math.min(30, Math.pow(abs, 0.85) * 26)).toFixed(2))
     const scale = Number(Math.max(0.72, 1 - 0.13 * Math.min(abs, 2)).toFixed(3))
-    const opacity = abs <= 1 ? 1 - 0.42 * abs : Math.max(0, 0.58 - (abs - 1) * 0.5)
+    let opacity = abs <= 1 ? 1 - 0.42 * abs : Math.max(0, 0.58 - (abs - 1) * 0.5)
 
-    // 居中卡片的微视差倾斜
-    const tiltX = isCenter && !dragging ? tilt.x : 0
-    const tiltY = isCenter && !dragging ? tilt.y : 0
+    const tiltX = isCenter && !dragging && roomState === "closed" ? tilt.x : 0
+    const tiltY = isCenter && !dragging && roomState === "closed" ? tilt.y : 0
 
-    const transform = [
+    let transform = [
       `translateX(${tx}%)`,
       `translateZ(${tz}px)`,
       `rotateY(${ry + tiltX}deg)`,
@@ -217,22 +276,61 @@ export default function HomePage() {
       `scale(${scale})`,
     ].join(" ")
 
+    // 处于打开/折叠状态时的景深形变
+    if (roomState === "expanding" || roomState === "opened") {
+      if (isCenter) {
+        transform = "translateX(0%) translateZ(120px) rotateY(0deg) rotateX(0deg) scale(1.08)"
+        opacity = 0
+      } else {
+        transform = `translateX(${tx * 1.5}%) translateZ(-200px) rotateY(${ry}deg) scale(0.6)`
+        opacity = 0
+      }
+    } else if (roomState === "collapsing") {
+      if (isCenter) {
+        transform = "translateX(0%) translateZ(0px) rotateY(0deg) rotateX(0deg) scale(1)"
+        opacity = 1
+      }
+    }
+
     const brightness = isCenter ? 1 : Number(Math.max(0.72, 1 - 0.22 * abs).toFixed(2))
     const boxShadow = isCenter
-      ? "0 34px 76px -12px rgba(29, 59, 52, 0.32), 0 12px 28px -6px rgba(0,0,0,0.18)"
+      ? "0 34px 76px -12px rgba(29, 59, 52, 0.38), 0 12px 28px -6px rgba(0,0,0,0.22)"
       : "0 10px 28px -4px rgba(0,0,0,0.08)"
 
     return {
       transform,
       opacity,
-      zIndex: 30 - Math.round(abs) * 10,
+      zIndex: isCenter ? 50 : 30 - Math.round(abs) * 10,
       cursor: "pointer",
       userSelect: "none",
       filter: `brightness(${brightness})`,
       boxShadow,
+      willChange: "transform, opacity",
       transition: dragging
         ? "none"
-        : `transform 0.52s ${SPRING}, opacity 0.52s ${SPRING}, filter 0.52s ${SPRING}, box-shadow 0.52s ${SPRING}`,
+        : `transform 0.46s ${SPRING}, opacity 0.42s ${SPRING}, filter 0.42s ${SPRING}, box-shadow 0.42s ${SPRING}`,
+    }
+  }
+
+  // 渲染活动房间内容 (内嵌无缝挂载)
+  const renderActiveRoomView = () => {
+    if (!activeRoomId || roomState === "closed") return null
+
+    switch (activeRoomId) {
+      case "baink":
+        return <BainkView {...bainkProps} onBack={closeRoom} />
+      case "music-box":
+        return <MusicBoxView {...musicBoxProps} onBack={closeRoom} />
+      case "archive":
+        return <ArchiveView {...archiveProps} onBack={closeRoom} />
+      case "story":
+        return <StoryView {...storyProps} onBack={closeRoom} />
+      case "toy-room":
+        return <ToyRoomView {...toyRoomProps} onBack={closeRoom} />
+      case "calibration":
+        return <CalibrationView {...calibrationProps} onBack={closeRoom} />
+      default:
+        return null
     }
   }
 
@@ -268,10 +366,7 @@ export default function HomePage() {
                   className={`ritual-layer ritual-figures${ritualStep === 1 ? " on" : ""}`}
                   style={{ backgroundImage: ritualFigureArt }}
                 />
-                <View className={`ritual-names${ritualStep === 1 ? " on" : ""}`}>
-                  <Text>BAINK / I</Text>
-                  <Text>NIVAL / II</Text>
-                </View>
+                <View className={`ritual-names${ritualStep === 1 ? " on" : ""}`}>{`BAINK / I   NIVAL / II`}</View>
               </View>
               <View className="ritual-card-foot">
                 <Text className="ritual-foot-text">EDEN · 47</Text>
@@ -291,15 +386,15 @@ export default function HomePage() {
           </View>
         </View>
       ) : (
-        <View className="compass" onWheel={onWheel}>
+        <View className={`compass${roomState !== "closed" ? " compass-room-active" : ""}`} onWheel={onWheel}>
           <View className="compass-ambient" style={{ background: ambientGlow }} />
 
-          <View className="compass-head">
+          <View className={`compass-head${roomState !== "closed" ? " fade-out" : ""}`}>
             <View className="head-left">
               <Text className="kicker">// EDEN DOMESTIC INDEX · PRIVATE</Text>
               <Text className="head-title">归家索引</Text>
               <Text className="head-sub">家仍记得每一道归途</Text>
-              <Text className="head-note">每一张牌，通往一间房</Text>
+              <Text className="head-note">点击或上推卡片 · 步入房间</Text>
             </View>
             <View className="head-right">
               <Text className="roman" key={active.roman}>{active.roman}</Text>
@@ -308,7 +403,7 @@ export default function HomePage() {
           </View>
 
           <View
-            className="compass-stage"
+            className={`compass-stage${roomState !== "closed" ? " stage-morphing" : ""}`}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -322,7 +417,7 @@ export default function HomePage() {
               return (
                 <View
                   key={card.id}
-                  className="spec-card"
+                  className={`spec-card${isCenter ? " is-center" : ""}`}
                   style={cardStyle(i)}
                   onClick={() => onCardTap(i)}
                 >
@@ -330,9 +425,9 @@ export default function HomePage() {
                     <View
                       className="spec-sheen"
                       style={
-                        isCenter
+                        isCenter && roomState === "closed"
                           ? {
-                              background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 80%)`,
+                              background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 80%)`,
                             }
                           : undefined
                       }
@@ -351,10 +446,9 @@ export default function HomePage() {
                           {line}
                         </Text>
                       ))}
+                      <Text className="meta-sub">{card.enSub}</Text>
                     </View>
-                    <View className="spec-fade" />
-                    <View className="spec-text">
-                      <Text className="spec-en">{card.enSub}</Text>
+                    <View className="spec-titlebox">
                       <Text className="spec-title">{card.title}</Text>
                       <Text className="spec-tags">{card.tags}</Text>
                     </View>
@@ -364,29 +458,22 @@ export default function HomePage() {
             })}
           </View>
 
-          <View className="compass-foot">
+          <View className={`compass-foot${roomState !== "closed" ? " fade-out" : ""}`}>
+            <View className="foot-rule" />
             <View className="foot-row">
-              <View className="foot-btn" onClick={() => stepTo(activeIndex - 1)}>
-                <Text>‹</Text>
-              </View>
-              <View className="foot-mid" onClick={openActiveRoom}>
-                <Text className="foot-title">{active.title}</Text>
-                <Text className="foot-sub">{active.tags}</Text>
-              </View>
-              <View className="foot-btn" onClick={() => stepTo(activeIndex + 1)}>
-                <Text>›</Text>
-              </View>
+              <Text className="mono-line dim">COVERFLOW 3D · 6 SPECIMENS</Text>
+              <Text className="mono-line dim">CLICK CARD TO ENTER</Text>
             </View>
-            <View className="dots">
-              {SPECIMEN_CARDS.map((card, i) => (
-                <View key={card.id} className={i === activeIndex ? "dot dot-on" : "dot"} onClick={() => stepTo(i)} />
-              ))}
-            </View>
-            <Text className="foot-caption">SWIPE TO DRAW · TAP PERSON CARD TO ENTER</Text>
           </View>
+
+          {/* 60fps 硬件加速原生挂载的房间视图 */}
+          {roomState !== "closed" ? (
+            <View className={`eden-room-overlay ${roomState}`}>
+              <View className="eden-room-viewport">{renderActiveRoomView()}</View>
+            </View>
+          ) : null}
         </View>
       )}
-      <View className="eden-grain" />
     </View>
   )
 }
