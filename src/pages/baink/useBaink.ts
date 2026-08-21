@@ -4,6 +4,7 @@ import { goBackToHome } from "@/lib/nav"
 import { callLlmWithFallback, listLlmModels } from "@/lib/llm"
 import { callEdenAiStream, loadApiConfig } from "@/lib/bridge"
 import { maybeExtractMemory } from "@/lib/memoryStore"
+import { buildRAGContextPrompt } from "@/lib/vectorRAG"
 
 /* ---------------- 模型与语音通道 ---------------- */
 
@@ -258,8 +259,10 @@ export function useBaink(): BainkProps {
       scrollToEnd()
 
       const history = historyRef.current.slice(-10)
+      const ragPrompt = buildRAGContextPrompt(text)
+      const dynamicSystemPrompt = `${SYSTEM_PROMPT}${ragPrompt}`
       const chatMessages = [
-        { role: "system" as const, content: SYSTEM_PROMPT },
+        { role: "system" as const, content: dynamicSystemPrompt },
         ...history.map((h) => ({ role: h.role, content: h.content })),
       ]
 
