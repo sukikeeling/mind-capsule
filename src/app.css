@@ -32,6 +32,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* 修复 Taro 4 H5 页面路由容器在所有平台下的可见性 */
+.taro_page {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  background: #12151b !important;
+}
+
+.taro_router > .taro_page.taro_page_show {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 page {
   min-height: 100%;
   background: #12151b;
@@ -39,13 +53,14 @@ page {
   font-family: var(--font-serif);
 }
 
-/* 全局胶片微噪点（Film Grain Shader 模拟） */
-.eden-film-grain {
+/* 全局胶片微噪点（使用 body::after 纯伪元素，不插入多余 DOM 节点以防破坏路由选择器） */
+body::after {
+  content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.038;
+  opacity: 0.035;
   background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0);
   background-size: 4px 4px;
 }

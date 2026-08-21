@@ -5,10 +5,7 @@ import "./app.css"
 export default function App({ children }: PropsWithChildren) {
   return (
     <EdenErrorBoundary>
-      <EdenProvider>
-        {children}
-        <div className="eden-film-grain" />
-      </EdenProvider>
+      <EdenProvider>{children}</EdenProvider>
     </EdenErrorBoundary>
   )
 }
