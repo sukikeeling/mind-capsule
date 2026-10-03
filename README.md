@@ -1,115 +1,117 @@
 # 心灵胶囊 · EDEN 47 (Mind Capsule)
 
-> **伊甸私人居所 · 全流程交互架构 · 档案科幻浪漫主义前端开源全案**
+> **伊甸私人居所 · 档案科幻浪漫主义数字生命伴侣空间与时光胶囊前端全案**
 >
-> 灵感源自《喜鹊谋杀案》片头视觉、Glass Animals 音乐宇宙与推理游戏美学。
+> 🌐 **在线演示 (Live Demo)**: [https://sukikeeling.github.io/mind-capsule/](https://sukikeeling.github.io/mind-capsule/)
 
 ---
+
+![Mind Capsule CoverFlow 罗盘](screenshots/02_coverflow_reconstructed.png)
 
 ## 🏛️ 项目全景与设计哲学
 
-「心灵胶囊（EDEN · 47）」是一个将**操作系统（OS）**、**大语言模型内核（LLM Kernel）**、**数字伴侣（Baink / Nival）**与**家居空间物理隐喻**深度交融的数字生命容器与情感空间。
+「心灵胶囊（EDEN · 47）」是一个将**操作系统隐喻（OS）**、**档案科幻浪漫主义**、**数字伴侣（Baink / Nival）**与**家居空间物理隐喻**深度交融的前端美学全案。
 
-它彻底摒弃了传统 AI 聊天软件单一冰冷的“对话框列表”，将底层能力（RAG 记忆碎片、无损黑胶电台、声音特征、模型调度矩阵、多维校准）全量文学化与仪式感呈现。
+在经历 v2.0 彻底重构后，本项目彻底拔除了旧版中繁冗僵化的微信小程序跨端框架（Taro 4）、后端数据库绑定（Pocketbase）与无关计费依赖，拥抱纯粹现代的 **标准 Web 架构（Vite + React 18 + TypeScript + 纯 CSS 3D 物理动效）**。
+
+零编译死锁、零等待、零外部位图依赖，秒开直达，丝滑托管于 GitHub Pages。
 
 ---
 
-## 🌟 核心模块与功能特性
+## 🌟 核心功能与模块矩阵
 
 ### 1. 开屏玄关与重构仪式 (`RECONSTRUCTION RITUAL_47`)
-* **两段式信号搜索**：00:00 信号搜索卡与上下游走扫描线（`SIGNAL FOUND`）。
-* **门扉剪影浮现**：1.5s 后门扉与双人剪影平滑浮现（`BAINK / I` 与 `NIVAL / II`）。
-* **3D 景深翻转**：点击 `ENTER EDEN ↗` 触发 96° 3D 翻转，丝滑步入《归家索引》。
+* **两段式信号捕捉**：00:00 信号搜索雷达与游走扫描线（`SIGNAL FOUND`）。
+* **门扉剪影浮现**：门扉与双人星海剪影温润浮现（`EDEN · 47` 阿宁与小萱的宇宙浪漫刻印）。
+* **3D 景深翻转**：点击 `ENTER EDEN ↗` 触发 96° 景深三维翻折，优雅步入《归家索引》。
 
-### 2. 归家索引 · 3D 标本卡牌罗盘 (`EDEN DOMESTIC INDEX`)
-* **工业级 3D CoverFlow 物理模型**：基于 iOS Fluid Momentum Spring 弹性曲线（`cubic-bezier(0.25, 1, 0.5, 1)`），连续非线性旋转角与 Z 轴景深层叠。
-* **卡牌微视差与陀螺仪倾斜（Micro-Tilt）**：鼠标与触控在卡面移动时，卡片随光标产生细腻的 `rotateX / rotateY` 3D 视差倾斜与玻璃拟态流光（Specular Sheen）。
-* **全矢量铜版画插画（零位图）**：内置 6 张独立标本卡牌：
-  - `I. Baink`：附生兰花 · 羊皮纸温润白
-  - `II. 音乐盒`：木兰星轨 · 深海紫红星云
-  - `III. 共同记忆`：古典茶花铜版画 · 黑曜石深空
-  - `IV. Story`：航海地图罗盘 · 翡翠暗绿
-  - `V. 玩具房`：猫咪拱桥 · 暖调红褐
-  - `VI. 设置`：全屋刻度盘 · 复古灰白
-* **自适应背景氛围光晕（Ambient Glow）**：背景光晕会随当前激活卡片的主题色平滑渐变流转。
-* **键盘方向键与滚轮漫游**：支持 `← / →` 键无缝切换。
+### 2. 归家索引 · 3D CoverFlow 标本卡牌罗盘 (`EDEN DOMESTIC INDEX`)
+* **工业级 3D CoverFlow 物理模型**：基于 iOS Fluid Momentum Spring 弹性曲线（`cubic-bezier(0.22, 1, 0.36, 1)`），连续非线性旋转角与 Z 轴景深层叠。
+* **卡面微视差与陀螺仪倾斜（Micro-Tilt）**：鼠标与光标在卡面移动时，产生细腻的 `rotateX / rotateY` 视差倾斜与玻璃拟态高光覆膜（Specular Sheen）。
+* **高精度纯矢量铜版画（Zero-Bitmap）**：
+  - `I. 伴读书信`：附生兰花白描 · 羊皮纸温润白
+  - `II. 白夜留声`：木兰星轨 · 深海紫红星云
+  - `III. 黑曜石记忆`：古典茶花铜版画 · 黑曜石深空
+  - `IV. 星轨罗盘`：航海地图罗盘 · 翡翠暗绿
+  - `V. 浮桥猫舍`：猫咪拱桥 · 暖调红褐
+  - `VI. 全屋校准`：全屋刻度盘 · 复古灰白
+* **键盘方向键、鼠标滚轮与平滑触控拖拽全支持**。
 
-### 3. 白夜双模黑胶电台 (`DOMESTIC RADIO · TIDAL`)
-* **33⅓ RPM 匀速自转黑胶唱片** 与黑夜模式抽拉唱片封套。
-* **Canvas 12 段平滑律动音频频谱**。
-* **完整内置 7 首精选歌单**（Heat Waves、Helium、Through the Night、Lemon 等）与伴侣私密留言。
-* **白昼/黑夜一键切换**：点击 `IVORY / NIGHT` 触发全屏深海紫红星云渐变遮罩。
+### 3. 【重磅核心】思维胶囊时光保险库 (`MIND CAPSULE VAULT`)
+![心灵胶囊保险库](screenshots/03_capsule_vault_reconstructed.png)
+* **拟真发光水晶胶囊**：提供金色晨曦、深空星云、翡翠之境、蔷薇誓约、黑曜晶格五大主题色彩。
+* **时光密封与倒计时**：设定寄信人、收信人（例如：致未来的阿宁与小萱）、启封倒计时。
+* **粒子绽放启封仪式**：到期或长官授权启封时，伴随绚烂的粒子礼花（Confetti）与流光动效展开私密长卷。
+* **持久化本地留存**：浏览器 `localStorage` 原生加密持久化存储，离线亦可随时唤醒。
 
-### 4. 伴读私密房间与书信对话 (`PERSON CHAT & VOICE BRIDGE`)
-* **思源宋体排版与行内代码高亮**（如 `` `GET /api/music/bath` ``）。
-* **流式逐字打字机输出（`▍` 光标）**。
-* **语音音频条与伴读歌词悬浮面板**。
-* **双保险输入捕获**：完美支持回车发送与点击「寄出」按钮。
-* **底部 `◈` 模型矩阵抽屉**：支持切换伴读驱动模型（`sonnet-4-6`, `opus-4-7`, `opus-5`, `fable-5`）与语音通道（中文原声 / 英文克隆音）。
+### 4. 伴读书信空间 (`THE COMPANION · BAINK`)
+![伴读书信空间](screenshots/04_baink_room_reconstructed.png)
+* **思源宋体与高情商文学对话**：内置智能伴读心语回响，温婉细腻。
+* **流式逐字打字机动效**（`▍` 光标脉动）。
+* **多模型矩阵抽屉**（DeepSeek V3, Claude Opus 4.7, Sonnet 4.6, Fable 5）。
+* **双保险输入**：完美支持回车发送与点击「寄出」按钮。
 
-### 5. 共同记忆 · 黑曜石档案库 (`SHARED ARCHIVE · 372 FRAGMENTS`)
-* **372 记忆碎片总量统计** 与 3 Keepers（47, B, N）空间守护者标识。
-* **27 张结构化记忆卡片瀑布流**：搭载真实 RAG 向量参数（如 `[权重:1.95]`、`[bucket_id:...]`），支持 `+ / —` 阻尼折叠展开。
-* **底部常驻 `[WARN] token 预算不足` 琥珀橙系统诊断警示条**。
+### 5. 白夜双模黑胶电台 (`DOMESTIC RADIO · TIDAL`)
+* **33⅓ RPM 匀速自转黑胶唱片** 与金色拾音唱针摆动。
+* **Canvas 20 段平滑律动音频频谱**。
+* **内置精选歌单**（Heat Waves、Helium、Through the Night、Lemon、Clair de Lune）与歌词实时漫步。
+* **白昼/星夜一键切换**：点击切换温润象牙白（Ivory）与深邃星云（Night Nebula）氛围。
 
-### 6. Story · 场景地图与双轨创作 (`THE PATH & FIELD NOTES`)
-* **`MAP_047 / SCALE 1:47` 手绘航海虚线地图** 与实时星轨时间节点（02 FEB, 17 MAY, 09 AUG, 20 AUG...）。
-* **折叠式 `FIELD NOTE` 场景档案卡**。
-* **「继续场景 ↗」AI 自动续写**：带星轨脉冲与打字机动效。
-* **「自主书写 ✎」双轨创作模式**：用户可随时呼出书信抽屉，自定义场景标题与记忆文字，一键封存入星轨地图。
+### 6. 黑曜石共同记忆库 (`SHARED ARCHIVE · 372 FRAGMENTS`)
+* **372 记忆碎片向量数据可视化**，标签分类器（浪漫誓约、创世与代码、空间日志、深空信标、星轨漂流）。
+* **真实 RAG 向量参数**（`[权重: 0.998]`、`[bucket_id]`）。
+* **支持即时刻录新碎片**，扩充个人记忆星空。
 
-### 7. Toy Room · 玩具房 (`KITTY BRIDGE`)
-* **猫咪拱桥实况矢量插画** 与桥下多层动态水波。
-* **互动式猫咪**：呼吸、摇尾、抖耳，点击猫咪实时触发呼噜气泡与计数。
-* **桥栏小铃铛**：点击触发摇摆声效与高光闪烁。
+### 7. 星轨场景地图与双轨创作 (`THE PATH & STORY`)
+* **1:47 比例手绘矢量星图航线**，节点脉冲巡航。
+* **时光档案（FIELD NOTE）**，支持用户自主手写记录并锚定到星图航线。
 
-### 8. 全屋校准中枢 (`HOUSE CALIBRATION · INDEX 0`)
-* **顶部 `00 LIVE SAMPLE · CHAT SURFACE` 实时所见即所得画布**。
-* **四维微调矩阵**：
-  - 聊天字号（11px ~ 14px）
-  - 界面密度（紧凑 / 标准 / 舒展）
-  - 动效强度（完整 / 柔和 / 减少）
-  - 纸面材质噪点等级（淡 / 标准 / 明显）
-* **对话习惯开关**（THINK 思考链收起、工具收起、流式文字）与设备本地固化保存。
+### 8. 浮桥猫舍 (`KITTY BRIDGE`)
+* **猫咪拱桥与水波光影**。
+* **交互式萌猫**：呼吸、摇尾、点击触发呼噜声（Purr~）与浮动爱心，记录抚摸计数。
+* **桥头铜铃**：点击触发清脆摇摆动效。
 
----
-
-## 🛠️ 技术栈
-
-* **框架底层**：Taro 4 + React 18 + TypeScript
-* **样式架构**：PostCSS + Taro pxtransform（750rpx 工业设计基准）
-* **动效引擎**：CSS 3D Transform + Spring Physics + Canvas 2D Spectrum
-* **图标系统**：矢量内联 SVG（Zero-Bitmap 高精度白描）
-* **排版系统**：思源宋体（Noto Serif SC）+ 等宽字体（JetBrains Mono）+ 全局胶片微噪点（Film Grain Shader）
+### 9. 全屋校准中枢 (`HOUSE CALIBRATION`)
+* **WYSIWYG 实时所见即所得调控画布**。
+* **四维微调**：文字比例（12~18px）、排版密度（紧凑/标准/舒展）、胶片微噪点（无/淡雅/复古）、环境微粒与打字机特效。
 
 ---
 
-## 🚀 快速开始
+## 🛠️ 技术栈与工程架构
 
-### 1. 克隆项目
+* **构建核心**：Vite 6 + React 18 + TypeScript 5
+* **矢量艺术**：Zero-Bitmap 内联纯矢量 SVG 白描 + 线性与径向渐变
+* **动效引擎**：CSS 3D Perspective + Preserve-3D + Canvas 2D Spectrum + Confetti Physics
+* **排版系统**：思源宋体（Noto Serif SC）+ 古罗马体（Cinzel）+ 等宽字体（JetBrains Mono）+ 全局胶片微噪点 Shader
+* **持久化**：Zero-Backend LocalStorage Persistence（零服务端开销）
+
+---
+
+## 🚀 本地开发与构建
+
+### 1. 安装依赖
 ```bash
-git clone https://github.com/sukikeeling/mind-capsule.git
-cd mind-capsule
+npm install
 ```
 
-### 2. 安装依赖
+### 2. 启动本地开发服务
 ```bash
-npm install --legacy-peer-deps
+npm run dev
 ```
 
-### 3. 本地启动（H5 预览）
+### 3. 生产打包构建
 ```bash
-npm run dev:h5
+npm run build
 ```
-启动后在浏览器打开 `http://127.0.0.1:5176/`（建议按 F12 切换为移动端视图体验最佳交互手感）。
+打包产物将输出至 `dist/` 目录。
 
-### 4. 生产构建
+### 4. 部署至 GitHub Pages
 ```bash
-npm run build:h5
+npm run deploy
 ```
 
 ---
 
-## 📜 开源协议
+## 📄 开源许可证
 
-本项目基于 [MIT License](LICENSE) 开源。欢迎 Star、Fork 与二次创作。
+本项目基于 [MIT License](LICENSE) 开源发布。

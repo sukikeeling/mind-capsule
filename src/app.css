@@ -1,15 +1,23 @@
-/* =========================================================
-   心灵胶囊 · EDEN 47 全局样式与排版系统
-   ========================================================= */
+/* ----------------------------------------------------
+   心灵胶囊 · EDEN 47 视觉美学核心样式库
+   Glassmorphism + Celestial Nebula + Obsidian Dark
+---------------------------------------------------- */
 
 :root {
-  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimHei, serif;
-  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, monospace;
-  --font-display: "Cinzel", "Noto Serif SC", serif;
-  --color-parchment: #f4efe6;
-  --color-obsidian: #0e1117;
-  --color-wine: #4a2b33;
-  --color-pine: #1d3b34;
+  --bg-obsidian: #0a0c0f;
+  --bg-panel: rgba(18, 22, 28, 0.75);
+  --bg-panel-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #edeae0;
+  --text-muted: #8e959b;
+  --text-faint: #525960;
+  --gold: #e3b377;
+  --gold-glow: rgba(227, 179, 119, 0.35);
+  --emerald: #759b8b;
+  --nebula-rose: #ff5e57;
+  --font-serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-roman: "Cinzel", serif;
+  --spring: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -19,48 +27,167 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body {
+html, body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  background: #12151b;
-  color: #edeae0;
+  overflow: hidden;
+  background-color: var(--bg-obsidian);
+  color: var(--text-primary);
   font-family: var(--font-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
-/* 修复 Taro 4 H5 页面路由容器在所有平台下的可见性 */
-.taro_page {
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 100vh !important;
-  background: #12151b !important;
+/* 全局滚动条精细化 */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(227, 179, 119, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(227, 179, 119, 0.5);
 }
 
-.taro_router > .taro_page.taro_page_show {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-page {
-  min-height: 100%;
-  background: #12151b;
-  color: #edeae0;
-  font-family: var(--font-serif);
-}
-
-/* 全局胶片微噪点（使用 body::after 纯伪元素，不插入多余 DOM 节点以防破坏路由选择器） */
-body::after {
-  content: "";
+/* 胶片颗粒噪点层 */
+.film-grain {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
   opacity: 0.035;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0);
-  background-size: 4px 4px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+.grain-subtle {
+  opacity: 0.02;
+}
+.grain-strong {
+  opacity: 0.055;
+}
+.grain-none {
+  display: none;
+}
+
+/* 玻璃拟态卡片基底 */
+.glass-card {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bg-panel-border);
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  transition: all 0.3s var(--spring);
+}
+.glass-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(227, 179, 119, 0.4);
+  box-shadow: 0 0 15px rgba(227, 179, 119, 0.2);
+}
+
+/* 霓虹与文字流光 */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fff7ea 0%, #e3b377 60%, #b38547 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-nebula-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #ff8c94 50%, #ff5e57 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 动画定义 */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(1200%);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+.animate-float {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+/* 3D 舞台基底 */
+.stage-3d {
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+/* 字体等级 */
+.font-roman {
+  font-family: var(--font-roman);
+  letter-spacing: 0.12em;
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* 按钮通用触感 */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+}
+button:active {
+  transform: scale(0.97);
 }
