@@ -115,3 +115,7 @@ npm run deploy
 ## 📄 开源许可证
 
 本项目基于 [MIT License](LICENSE) 开源发布。
+
+## 仓库声明
+
+本仓库的署名与参考规范见 [NOTICE](NOTICE)：参考、借鉴或改造本仓库时，请标明来源 sukikeeling/mind-capsule。
